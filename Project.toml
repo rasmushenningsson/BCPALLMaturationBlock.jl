@@ -1,0 +1,25 @@
+name = "BCPALLMaturationBlock"
+uuid = "1664f8df-9cd1-4c13-b042-df31d7ee17aa"
+version = "0.1.0"
+authors = ["Rasmus Henningsson <rasmus.henningsson@med.lu.se>"]
+
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Preferences = "21216c6a-2e73-6563-6e65-726566657250"
+ReproducibleJobs = "aecc171b-6fa4-4f58-b49a-a8d1f07f0278"
+SCTransform = "f56ea72b-d1ea-403e-9c0c-95d94e8a8532"
+SingleCellProjections = "03d38035-ed2f-4a36-82eb-797f1727ab2e"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+
+[compat]
+CSV = "0.10.15"
+DataFrames = "1.8.1"
+LinearAlgebra = "1.12.0"
+Preferences = "1.5.0"
+ReproducibleJobs = "0.1.0"
+SCTransform = "0.4.0"
+SingleCellProjections = "0.5.0"
+Statistics = "1.11.1"
+julia = "1.12"
