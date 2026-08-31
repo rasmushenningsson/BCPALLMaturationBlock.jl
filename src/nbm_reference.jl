@@ -100,10 +100,15 @@ bcell_trajectory_bridge() = LineTrajectory([-1600 600; 500 -600], 1000)
 
 
 function nbm_reference_plot(; seed=nothing)
-	fl = nbm_reference_force_layout(; ndim=2, seed)
-	fig = scatter_categorical_2d(fl, "annotations_B_new_broad"; colors=colortable_annotations_B_new_broad(), )
+	fig = Figure(; size=(1024, 1024))
+	ax = Axis(fig[1, 1]; autolimitaspect=true)
 
-	ax = current_axis(fig)
+	hidedecorations!(ax)
+	hidespines!(ax)
+
+
+	fl = nbm_reference_force_layout(; ndim=2, seed)
+	scatter_categorical_2d!(ax, fl, "annotations_B_new_broad"; colors=colortable_annotations_B_new_broad(), )
 	draw_trajectory!(ax, bcell_trajectory_HSC2MemoryB(); nticks=6)
 	# draw_trajectory!(ax, bcell_trajectory_bridge(); nticks=6)
 

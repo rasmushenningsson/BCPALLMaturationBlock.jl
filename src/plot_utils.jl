@@ -1,22 +1,12 @@
-function scatter_2d(job)
+function scatter_2d!(ax, job; color = :black)
 	matrix = fetch!(SCP.get_matrix(job))
-	fig = Figure(; size=(768, 768))
-	ax = Axis(fig[1, 1])
-	scatter!(ax, matrix; color = :black, markersize = 4)
-	fig
+	scatter!(ax, matrix; color, markersize = 4)
+	ax
 end
 
-function scatter_categorical_2d(job, annot_name; bg=nothing, colors=nothing)
+function scatter_categorical_2d!(ax, job, annot_name; colors=nothing)
 	matrix = fetch!(SCP.get_matrix(job))
 	annot = fetch!(SCP.value_column_data(SCP.annotation(SCP.get_obs(job), annot_name)))
-
-	fig = Figure(; size=(768, 768))
-	ax = Axis(fig[1, 1])
-
-	if bg !== nothing
-		bg_matrix = fetch!(SCP.get_matrix(bg))
-		scatter!(ax, bg_matrix; color=colorant"#BFCCE6", markersize=2)
-	end
 
 	if colors !== nothing
 		unique_annotations = unique(annot)
@@ -33,7 +23,7 @@ function scatter_categorical_2d(job, annot_name; bg=nothing, colors=nothing)
 	end
 
 	axislegend(ax, plots .=> Ref((;markersize=16)), categories) # use a larger markersize in the legend
-	fig
+	ax
 end
 
 
