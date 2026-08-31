@@ -14,7 +14,8 @@ export
 	nbm_reference_transformed,
 	nbm_reference_normalized,
 	nbm_reference_pca,
-	nbm_reference_force_layout
+	nbm_reference_force_layout,
+	nbm_reference_plot
 
 import SingleCellProjections as SCP
 using SingleCellProjections
@@ -24,6 +25,10 @@ using DataFrames
 using CSV
 using LinearAlgebra
 using Statistics: mean, var
+
+# basic plotting
+using Colors
+using GLMakie
 
 
 set_annotations_path(path::String) = @set_preferences!("annotations_path"=>expanduser(path))
@@ -35,6 +40,9 @@ get_bcpall_path() = @load_preference("bcpall_path")
 
 include("utils.jl")
 include("samples.jl")
+
+include("plot_utils.jl")
+include("colors.jl")
 
 include("nbm_reference.jl")
 
