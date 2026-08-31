@@ -51,8 +51,8 @@ function projection_trajectory_histogram(sample_names)
 	replacements = projection_replacements(sample_names)
 	fl_proj = SCP.project(fl, replacements)
 
-	plot_trajectory_histogram(ax, fl_proj, nothing; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2)
-	# plot_trajectory_histogram(ax, fl_proj, "annotations_B_new_broad"; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2, colors=colortable_annotations_B_new_broad())
+	# plot_trajectory_histogram(ax, fl_proj, nothing; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2)
+	plot_trajectory_histogram(ax, fl_proj, "annotations_B_new_broad"; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2, colors=colortable_annotations_B_new_broad())
 
 	fig
 end
