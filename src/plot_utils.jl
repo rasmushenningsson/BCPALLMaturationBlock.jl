@@ -37,8 +37,9 @@ function scatter_categorical_2d(job, annot_name; bg=nothing, colors=nothing)
 end
 
 
-function draw_trajectory!(ax, trajectory::Trajectory)
+function draw_trajectory!(ax, trajectory::Trajectory; nticks=0)
 	color = colorant"#C0C0C0"
+	tick_color = colorant"#808080"
 
 	poly = polygon(trajectory)
 
@@ -50,11 +51,31 @@ function draw_trajectory!(ax, trajectory::Trajectory)
 
 
 	arrow_end = Point2f(outer_edge[:,end])
-	arrow_dir = arrow_end - Point2f(outer_edge[:,end-1])
-	arrow_dir *= 3 # make more room for arrow head
+	arrow_dir = Vec2f(arrow_end - Point2f(outer_edge[:,end-1]))
+	arrow_dir /= norm(arrow_dir)
+	arrow_dir *= 300 # make more room for arrow head
 	arrow_start = arrow_end - arrow_dir
 
-	arrows2d!(ax, arrow_start, arrow_dir, tipwidth=10, tiplength=10, tailwidth=0, taillength=0, minshaftlength=0, maxshaftlength=0, color=[color,color])
+	arrows2d!(ax, arrow_start, arrow_dir; tipwidth=10, tiplength=10, tailwidth=0, taillength=0, minshaftlength=0, maxshaftlength=0, color=[color,color])
+
+
+	if nticks != 0
+		timepoints = range(0,1,size(outer_edge,2))
+
+		for i in 1:nticks
+			t = (i-1)/(nticks-1)
+
+			j = searchsortedlast(timepoints, t)
+			j1 = max(j, 1)
+			j2 = min(j+1, size(outer_edge,2))
+			α = (t - timepoints[j1]) / step(timepoints)
+
+			tick_pos = Point2f(outer_edge[:,j1].*(1-α) .+ outer_edge[:,j2].*α)
+
+			text!(ax, tick_pos; text=rich("t", subscript(string(t))), fontsize=40,  align=(:center,:center), color=tick_color)
+		end
+	end
+
 
 	ax
 end

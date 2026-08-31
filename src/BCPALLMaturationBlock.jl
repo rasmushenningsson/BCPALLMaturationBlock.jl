@@ -9,13 +9,16 @@ export
 	find_samples,
 	load_samples,
 	load_annotations,
-	nbm_reference_replacements,
 	nbm_reference_counts,
+	nbm_reference_filtered_counts,
 	nbm_reference_transformed,
 	nbm_reference_normalized,
 	nbm_reference_pca,
 	nbm_reference_force_layout,
-	nbm_reference_plot
+	nbm_reference_plot,
+	projection_counts,
+	projection_replacements,
+	projection_scatter_plot
 
 import SingleCellProjections as SCP
 using SingleCellProjections
@@ -47,5 +50,6 @@ include("plot_utils.jl")
 include("colors.jl")
 
 include("nbm_reference.jl")
+include("projections.jl")
 
 end
