@@ -108,9 +108,25 @@ function nbm_reference_plot(; seed=nothing)
 
 
 	fl = nbm_reference_force_layout(; ndim=2, seed)
-	scatter_categorical_2d!(ax, fl, "annotations_B_new_broad"; colors=colortable_annotations_B_new_broad(), )
+	scatter_categorical_2d!(ax, fl, "annotations_B_new_broad"; colors=colortable_annotations_B_new_broad())
 	draw_trajectory!(ax, bcell_trajectory_HSC2MemoryB(); nticks=6)
 	# draw_trajectory!(ax, bcell_trajectory_bridge(); nticks=6)
+
+	fig
+end
+
+
+
+function nbm_reference_trajectory_histogram()
+	fig = Figure(; size=(1024, 256))
+	ax = Axis(fig[1, 1]; xlabel="Inferred time points")
+
+	hideydecorations!(ax)
+
+	fl = nbm_reference_force_layout(; ndim=2)
+
+	# plot_trajectory_histogram(ax, fl, nothing; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2)
+	plot_trajectory_histogram(ax, fl, "annotations_B_new_broad"; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2, colors=colortable_annotations_B_new_broad())
 
 	fig
 end

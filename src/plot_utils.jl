@@ -4,25 +4,38 @@ function scatter_2d!(ax, job; color = :black)
 	ax
 end
 
+
+
+
+function category_colors(annot, colors::Vector{<:Pair})
+	unique_annotations = unique(annot)
+	unique_annotations_set = Set(unique_annotations)
+	colors = filter(x->x[1] in unique_annotations_set, colors)
+
+	categories = first.(colors)
+	@assert isempty(setdiff(unique_annotations, categories)) # ensure all categories have colors specified
+
+	# categories, colors
+	colors
+end
+
+function category_colors(annot, ::Nothing)
+	categories = unique(annot)
+	colors = distinguishable_colors(length(categories)+2, [colorant"black", colorant"white"])[3:end]
+
+	categories .=> colors
+end
+
+
+
 function scatter_categorical_2d!(ax, job, annot_name; colors=nothing)
 	matrix = fetch!(SCP.get_matrix(job))
 	annot = fetch!(SCP.value_column_data(SCP.annotation(SCP.get_obs(job), annot_name)))
 
-	if colors !== nothing
-		unique_annotations = unique(annot)
-		unique_annotations_set = Set(unique_annotations)
-		colors = filter(x->x[1] in unique_annotations_set, colors)
+	colors = category_colors(annot, colors)
+	plots = [scatter!(ax, matrix[:,isequal.(annot, cat)]; markersize=6, color, label=cat) for (cat,color) in colors]
 
-		categories = first.(colors)
-		@assert isempty(setdiff(unique_annotations, categories)) # ensure all categories have colors specified
-
-		plots = [scatter!(ax, matrix[:,isequal.(annot, cat)]; markersize=6, color) for (cat,color) in colors]
-	else
-		categories = unique(annot)
-		plots = [scatter!(ax, matrix[:,isequal.(annot, cat)]; markersize=6) for cat in categories]
-	end
-
-	axislegend(ax, plots .=> Ref((;markersize=16)), categories) # use a larger markersize in the legend
+	axislegend(ax, plots .=> Ref((;markersize=16)), first.(colors)) # use a larger markersize in the legend
 	ax
 end
 
@@ -66,6 +79,72 @@ function draw_trajectory!(ax, trajectory::Trajectory; nticks=0)
 		end
 	end
 
+
+	ax
+end
+
+
+
+
+function padded_kde(x; boundary::Tuple{<:Real,<:Real}, npoints::Integer,
+                       bandwidth::Real, pad_factor::Real = 6)
+    lo, hi = boundary
+    dx_target = (hi - lo) / (npoints - 1)
+    pad = pad_factor * bandwidth
+
+    # oversample the padded interval so resolution on [lo, hi] is at least
+    # as fine as the requested npoints, after we crop/interpolate back down
+    npoints_padded = ceil(Int, (hi - lo + 2pad) / dx_target)
+
+    kd = kde(x; boundary = (lo - pad, hi + pad),
+             npoints = npoints_padded, bandwidth = bandwidth)
+
+    xrange = range(lo, hi, length = npoints)
+    itp = InterpKDE(kd)
+    density = [KernelDensity.pdf(itp, t) for t in xrange]
+
+    return xrange, density
+end
+
+
+
+
+function plot_trajectory_histogram(ax, job, annot_name=nothing; trajectory::Trajectory, σ=1e-2, colors=nothing)
+	matrix = fetch!(SCP.get_matrix(job))
+	t = trajectoryprojection(matrix, trajectory) # time value for each cell - or nothing if outside the trajectory
+
+	# remove cells that does not fall inside the trajectory
+	mask = t .!== nothing
+	t = identity.(t[mask]) # drop nothings
+
+	kde_kwargs = (; boundary=(0.0, 1.0), npoints = 2048, bandwidth=σ)
+
+	if annot_name === nothing
+		# gaussian smoothing
+		x, y = padded_kde(t; kde_kwargs...)
+		band!(ax, x, zeros(length(x)), y)
+	else # categories
+		annot = fetch!(SCP.value_column_data(SCP.annotation(SCP.get_obs(job), annot_name)))
+		annot = annot[mask,:]
+
+		colors = category_colors(annot, colors)
+
+		ylower = nothing
+		for (cat,color) in colors
+			m = isequal.(annot, cat)
+			tc = t[m]
+
+			# gaussian smoothing
+			xc, yc = padded_kde(tc; kde_kwargs...)
+			yc .*= (length(tc)/length(t)) # rescale to have total area proportional to number of points in category
+
+			ylower = @something ylower zeros(length(xc))
+			yupper = ylower .+ yc
+			band!(ax, xc, ylower, yupper; color)
+
+			ylower = yupper
+		end
+	end
 
 	ax
 end

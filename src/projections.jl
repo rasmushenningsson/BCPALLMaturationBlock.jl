@@ -41,3 +41,18 @@ function projection_scatter_plot(sample_names)
 
 	fig
 end
+
+
+function projection_trajectory_histogram(sample_names)
+	fig = Figure(; size=(1024, 256))
+	ax = Axis(fig[1, 1])
+
+	fl = nbm_reference_force_layout(; ndim=2)
+	replacements = projection_replacements(sample_names)
+	fl_proj = SCP.project(fl, replacements)
+
+	plot_trajectory_histogram(ax, fl_proj, nothing; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2)
+	# plot_trajectory_histogram(ax, fl_proj, "annotations_B_new_broad"; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2, colors=colortable_annotations_B_new_broad())
+
+	fig
+end

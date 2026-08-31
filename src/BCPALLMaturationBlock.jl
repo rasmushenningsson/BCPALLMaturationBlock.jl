@@ -16,9 +16,11 @@ export
 	nbm_reference_pca,
 	nbm_reference_force_layout,
 	nbm_reference_plot,
+	nbm_reference_trajectory_histogram,
 	projection_counts,
 	projection_replacements,
-	projection_scatter_plot
+	projection_scatter_plot,
+	projection_trajectory_histogram
 
 import SingleCellProjections as SCP
 using SingleCellProjections
@@ -32,6 +34,8 @@ using Statistics: mean, var
 # basic plotting
 using Colors
 using GLMakie
+
+using KernelDensity
 
 
 set_annotations_path(path::String) = @set_preferences!("annotations_path"=>expanduser(path))
