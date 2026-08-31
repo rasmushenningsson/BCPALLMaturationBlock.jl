@@ -47,6 +47,8 @@ function projection_trajectory_histogram(sample_names)
 	fig = Figure(; size=(1024, 256))
 	ax = Axis(fig[1, 1])
 
+	hideydecorations!(ax)
+
 	fl = nbm_reference_force_layout(; ndim=2)
 	replacements = projection_replacements(sample_names)
 	fl_proj = SCP.project(fl, replacements)
