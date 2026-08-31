@@ -78,7 +78,7 @@ function nbm_reference_force_layout(data=nothing; ndim, ref_names=nothing, seed=
 		transform = SCP.find_optimal_coord_transform(fl, annot=>isequal("HSC"), annot=>isequal("Memory B"))
 		# match rotation from paper
 		transform = fetch!(transform)
-		transform = rot2d(pi/8)*transform
+		transform = rot2d(pi/9)*transform
 	else
 		transform = SCP.find_optimal_coord_transform(fl, annot=>isequal("HSC"), annot=>isequal("Memory B"), annot=>isequal("Plasmablast"))
 	end
@@ -89,7 +89,24 @@ function nbm_reference_force_layout(data=nothing; ndim, ref_names=nothing, seed=
 end
 
 
+# Trajectories - NB: These are specific to a given force layout realization
+
+# From paper
+# bcell_trajectory_HSC2MemoryB() = BezierTrajectory([-800 -1800 -1200   300 1800;
+#                                                    2600   400 -1200 -1200 -300], 2300, 101)
+
+# Slightly adjusted since force layout had breaking changes between paper and current version
+bcell_trajectory_HSC2MemoryB() = BezierTrajectory([-800 -1800 -1200   300 1800;
+                                                   2600   400 -1200 -1200 -300], 2500, 101)
+
+
+
 function nbm_reference_plot(; seed=nothing)
 	fl = nbm_reference_force_layout(; ndim=2, seed)
-	scatter_categorical_2d(fl, "annotations_B_new_broad"; colors=colortable_annotations_B_new_broad(), )
+	fig = scatter_categorical_2d(fl, "annotations_B_new_broad"; colors=colortable_annotations_B_new_broad(), )
+
+	ax = current_axis(fig)
+	draw_trajectory!(ax, bcell_trajectory_HSC2MemoryB())
+
+	fig
 end

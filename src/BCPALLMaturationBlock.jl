@@ -41,6 +41,8 @@ get_bcpall_path() = @load_preference("bcpall_path")
 include("utils.jl")
 include("samples.jl")
 
+include("trajectories.jl")
+
 include("plot_utils.jl")
 include("colors.jl")
 
