@@ -9,36 +9,42 @@ function nbm_reference_raw_counts(; ref_names=nothing, kwargs...)
 end
 
 
-function nbm_reference_counts(data=nothing; kwargs...)
-	data = @something data nbm_reference_raw_counts(; kwargs...)
-	annots = load_annotations("ALL_merged_metadata_221027.csv.gz")
-	data = SCP.annotate_obs(data, annots)
+function nbm_reference_replacements(sample_names; ref_names=nothing, kwargs...)
+	ref_names = @something ref_names nbm_reference_sample_names()
 
-	# B-lineage only for NBM
-	b_cell_lineage = Set(("HSC","LMPP","CLP","Pro-B","Pre-B","Immature B","Naive B","Memory B","Plasmablast"))
-	data = SCP.filter_obs("annotations_B_new_broad" => in(b_cell_lineage), data; project_obs_ids=:skip)
+	ref = nbm_reference_raw_counts(; kwargs..., ref_names)
+	proj = nbm_reference_raw_counts(; kwargs..., ref_names=sample_names)
 
-	data
+	ref=>proj
 end
 
 
 
 
-function nbm_reference_filtered_counts(data=nothing; kwargs...)
-	data = @something data nbm_reference_counts(; kwargs...)
+function nbm_reference_counts(data=nothing; kwargs...)
+	data = @something data nbm_reference_raw_counts(; kwargs...)
+	annots = load_annotations("cell_annotations.csv.gz")
+	data = SCP.annotate_obs(data, annots)
 
 	data = SCP.filter_obs("percent.mt" => !ismissing, data) # Start with same filtering as in R analysis
 	data = SCP.filter_obs("nCount_RNA" => >=(2000), data) # But make it stricter
 
-	# TODO: Blast only for ALL
+	# B-lineage only for NBM
+	b_cell_lineage = Set(("HSC","LMPP","CLP","Pro-B","Pre-B","Immature B","Naive B","Memory B","Plasmablast"))
+	data = SCP.filter_obs("celltypes" => in(b_cell_lineage), data; project_obs_ids=:skip) # NB: :skip means this filter is ignored during projection
+
+	# Keep NBM cells, but for (projected) ALL cases keep Blast cells
+	data = SCP.filter_obs("tumor_celltype"=>in(("Blast","NBM")), data)
 
 	data
 end
 
 
 
+
+
 function nbm_reference_transformed(data=nothing; var_filter_transformed=nothing, kwargs...)
-	data = @something data nbm_reference_filtered_counts(; kwargs...)
+	data = @something data nbm_reference_counts(; kwargs...)
 	data = SCP.sctransform(data)
 
 	if var_filter_transformed !== nothing
@@ -68,7 +74,7 @@ function nbm_reference_force_layout(data=nothing; ndim, ref_names=nothing, seed=
 	                            k_projection = 10)
 
 	# TODO: Rotate such that HSC is at the top of the plot
-	annot = "annotations_B_new_broad"
+	annot = "celltypes"
 	if ndim==2
 		# transform = SCP.find_optimal_coord_transform(fl, annot=>isequal("HSC"), annot=>isequal("T-cells"))
 		transform = SCP.find_optimal_coord_transform(fl, annot=>isequal("HSC"), annot=>isequal("Memory B"))
@@ -91,7 +97,7 @@ end
 # bcell_trajectory_HSC2MemoryB() = BezierTrajectory([-800 -1800 -1200   300 1800;
 #                                                    2600   400 -1200 -1200 -300], 2300, 101)
 
-# Slightly adjusted since force layout had breaking changes between paper and current version
+# Slightly adjusted (wider trajectory) since force layout had breaking changes between paper and current SCP version
 bcell_trajectory_HSC2MemoryB() = BezierTrajectory([-800 -1800 -1200   300 1800;
                                                    2600   400 -1200 -1200 -300], 2500, 101)
 
@@ -108,7 +114,7 @@ function nbm_reference_plot(; seed=nothing)
 
 
 	fl = nbm_reference_force_layout(; ndim=2, seed)
-	scatter_categorical_2d!(ax, fl, "annotations_B_new_broad"; colors=colortable_annotations_B_new_broad())
+	scatter_categorical_2d!(ax, fl, "celltypes"; colors=colortable_celltypes())
 	draw_trajectory!(ax, bcell_trajectory_HSC2MemoryB(); nticks=6)
 	# draw_trajectory!(ax, bcell_trajectory_bridge(); nticks=6)
 
@@ -126,7 +132,7 @@ function nbm_reference_trajectory_histogram()
 	fl = nbm_reference_force_layout(; ndim=2)
 
 	# plot_trajectory_histogram(ax, fl, nothing; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2)
-	plot_trajectory_histogram(ax, fl, "annotations_B_new_broad"; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2, colors=colortable_annotations_B_new_broad())
+	plot_trajectory_histogram(ax, fl, "celltypes"; trajectory=bcell_trajectory_HSC2MemoryB(), σ=1e-2, colors=colortable_celltypes())
 
 	fig
 end

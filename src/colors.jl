@@ -1,4 +1,4 @@
-function colortable_annotations_B_new_broad()
+function colortable_celltypes()
 	entries = [
 		"HSC"                  => colorant"#EEBA18",
 		"LMPP"                 => colorant"#2fafa5",
@@ -16,5 +16,6 @@ function colortable_annotations_B_new_broad()
 		"Plasmablast"          => colorant"#b7a896",
 		"T-cells"              => colorant"#74c476",
 		"NK-cells"             => colorant"#238b45",
+		"ALL blast cells"      => colorant"#1c1900",
 	]
 end
