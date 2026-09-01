@@ -20,4 +20,9 @@ julia> set_annotations_path("path/to/annotations_folder")
 once to set the data locations.
 
 ## Usage
+
+```julia
+using BCPALLMaturationBlock
+```
+
 Generate plots using the `nbm_reference_plot`, `nbm_reference_trajectory_histogram`, `projection_scatter_plot` and `projection_trajectory_histogram` functions.
